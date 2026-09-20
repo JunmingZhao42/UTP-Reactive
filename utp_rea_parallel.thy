@@ -93,6 +93,38 @@ lemma R2m_Monotonic [closure]: "Monotonic R2m"
   by (simp add: mono_def R2m_mono)
      (pred_auto)
 
+lemma R2m_implies_R1m [closure]:
+  "M is R2m \<Longrightarrow> M is R1m"
+proof -
+  assume assms: "M is R2m"
+  show ?thesis
+  by (subst Healthy_if[OF assms, THEN sym])
+       (simp add: Healthy_def' R2m_def R1m_idem)
+qed
+
+lemma rp_merge_eqI:
+  fixes M N :: "('t::trace, 'a) rp merge"
+  shows "\<lbrakk> \<And>x p q z. merge_eval M x p q z = merge_eval N x p q z \<rbrakk> \<Longrightarrow>
+    M = N"
+  by (intro ext; clarify; rename_tac m z; case_tac m; simp)
+
+(* R1m(M)(x,p,q,z) = M(x,p,q,z) \<and> tr(x) \<le> tr(z) *)
+lemma R1m_merge_eval:
+  "merge_eval (R1m M) x p q z =
+    (merge_eval M x p q z \<and> tr\<^sub>v x \<le> tr\<^sub>v z)"
+  by pred_auto
+
+(* R2m(M)(x,p,q,z) = tr(x) \<le> tr(z) \<and>
+     M(x[tr := 0], p[tr := tr(p) - tr(x)], q[tr := tr(q) - tr(x)], z[tr := tr(z) - tr(x)]) *)
+lemma R2m_merge_eval:
+  "merge_eval (R2m M) x p q z =
+    (tr\<^sub>v x \<le> tr\<^sub>v z \<and>
+    merge_eval M (rea_vars.tr\<^sub>v_update (\<lambda>_. 0) x)
+      (rea_vars.tr\<^sub>v_update (\<lambda>_. tr\<^sub>v p - tr\<^sub>v x) p)
+      (rea_vars.tr\<^sub>v_update (\<lambda>_. tr\<^sub>v q - tr\<^sub>v x) q)
+      (rea_vars.tr\<^sub>v_update (\<lambda>_. tr\<^sub>v z - tr\<^sub>v x) z))"
+  by pred_auto
+
 lemma R2m'_idem: "R2m'(R2m'(P)) = R2m'(P)"
   by (pred_auto)
 
@@ -118,6 +150,32 @@ lemma R2cm_mono: "P \<sqsubseteq> Q \<Longrightarrow> R2cm(P) \<sqsubseteq> R2cm
 lemma R2cm_Monotonic [closure]: "Monotonic R2cm"
   by (simp add: mono_def R2cm_mono)
      (pred_auto)
+
+text \<open> Trace commutation laws. \<close>
+
+lemma R1m_R1m'_commute:
+  "(R1m \<circ> R1m') M = (R1m' \<circ> R1m) M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R1m_R2m_commute:
+  "(R1m \<circ> R2m) M = (R2m \<circ> R1m) M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R1m_R2m'_commute:
+  "(R1m \<circ> R2m') M = (R2m' \<circ> R1m) M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R1m_R2cm_commute:
+  "(R1m \<circ> R2cm) M = (R2cm \<circ> R1m) M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R1m'_R2m'_commute:
+  "(R1m' \<circ> R2m') M = (R2m' \<circ> R1m') M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R2m_R2cm_commute:
+  "(R2m \<circ> R2cm) M = (R2cm \<circ> R2m) M"
+  by (simp add: comp_def; pred_auto)
 
 lemma R2m_seq_lemma: "R2m'(R2m'(M) ;; R2(P)) = R2m'(M) ;; R2(P)"
   apply (simp add: R2m'_form R2_form)
@@ -184,6 +242,20 @@ lemma R3m_mono: "P \<sqsubseteq> Q \<Longrightarrow> R3m(P) \<sqsubseteq> R3m(Q)
 lemma R3m_Monotonic [closure]: "Monotonic R3m"
   by (simp add: mono_def R3m_mono)
      (pred_auto)
+
+text \<open> Commutation with the waiting condition. \<close>
+
+lemma R1m_R3m_commute:
+  "(R1m \<circ> R3m) M = (R3m \<circ> R1m) M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R2m_R3m_commute:
+  "(R2m \<circ> R3m) M = (R3m \<circ> R2m) M"
+  by (simp add: comp_def; pred_auto; metis minus_zero_eq)
+
+lemma R2cm_R3m_commute:
+  "(R2cm \<circ> R3m) M = (R3m \<circ> R2cm) M"
+  by (simp add: comp_def; pred_auto; metis minus_zero_eq)
 
 lemma R3_par_by_merge:
   assumes
