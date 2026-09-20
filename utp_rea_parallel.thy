@@ -119,6 +119,32 @@ lemma R2cm_Monotonic [closure]: "Monotonic R2cm"
   by (simp add: mono_def R2cm_mono)
      (pred_auto)
 
+text \<open> Trace commutation laws. \<close>
+
+lemma R1m_R1m'_commute:
+  "(R1m \<circ> R1m') M = (R1m' \<circ> R1m) M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R1m_R2m_commute:
+  "(R1m \<circ> R2m) M = (R2m \<circ> R1m) M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R1m_R2m'_commute:
+  "(R1m \<circ> R2m') M = (R2m' \<circ> R1m) M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R1m_R2cm_commute:
+  "(R1m \<circ> R2cm) M = (R2cm \<circ> R1m) M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R1m'_R2m'_commute:
+  "(R1m' \<circ> R2m') M = (R2m' \<circ> R1m') M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R2m_R2cm_commute:
+  "(R2m \<circ> R2cm) M = (R2cm \<circ> R2m) M"
+  by (simp add: comp_def; pred_auto)
+
 lemma R2m_seq_lemma: "R2m'(R2m'(M) ;; R2(P)) = R2m'(M) ;; R2(P)"
   apply (simp add: R2m'_form R2_form)
   apply (pred_auto)
@@ -184,6 +210,20 @@ lemma R3m_mono: "P \<sqsubseteq> Q \<Longrightarrow> R3m(P) \<sqsubseteq> R3m(Q)
 lemma R3m_Monotonic [closure]: "Monotonic R3m"
   by (simp add: mono_def R3m_mono)
      (pred_auto)
+
+text \<open> Commutation with the waiting condition. \<close>
+
+lemma R1m_R3m_commute:
+  "(R1m \<circ> R3m) M = (R3m \<circ> R1m) M"
+  by (simp add: comp_def; pred_auto)
+
+lemma R2m_R3m_commute:
+  "(R2m \<circ> R3m) M = (R3m \<circ> R2m) M"
+  by (simp add: comp_def; pred_auto; metis minus_zero_eq)
+
+lemma R2cm_R3m_commute:
+  "(R2cm \<circ> R3m) M = (R3m \<circ> R2cm) M"
+  by (simp add: comp_def; pred_auto; metis minus_zero_eq)
 
 lemma R3_par_by_merge:
   assumes
